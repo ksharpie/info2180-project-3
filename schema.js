@@ -1,17 +1,23 @@
 $(document).ready(function(){
     
+    $('#container').load('loginPage.php');
+    
     $("#login").click(function(){
+        console.log($("#username").val());
+        console.log( $("#password").val());
         $.ajax({
-            type: "GET",
-            url: "schema.php",
+            type: "POST",
+            url: "login.php",
             datatype: "html",
             data: {username: $("#username").val(), password: $("#password").val()},
             success: function(result){
+                console.log(result);
                 if(result == "errorMessage"){
                     $("#errorMessage").html("Incorrect Login Credentials")
                 }
                 else{
-                    window.location.href = "homePage.html";
+                     $('#container').load('homePage.php');
+                     //$(window).location.href="homePage.php";
                     $(window).load(function(){
                         $("#mailbox").html(result);
                     });   
@@ -23,7 +29,7 @@ $(document).ready(function(){
     $("#saveUser").click(function(){
         $.ajax({
             type: "POST",
-            url: "schema.php",
+            url: "saveUser.php",
             datatype: "html",
             data: {username: $("#username").val(), password: $("#password").val()},
             success: function(result){

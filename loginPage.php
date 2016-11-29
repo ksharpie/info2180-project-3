@@ -3,22 +3,10 @@
 include('login.php');
 
 if(isset($_SESSION['user'])){
-    header("location: profile.php");
+    header("location: homePage.php");
   }
 ?>
 
-<html>
-    <head>
-        <title>Welcome to the Cheapo Mail</title>
-
-		<link href="schema.css" type="text/css" rel="stylesheet" />
-
-		<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-
-		<script src="schema.js" type="text/javascript"></script>
-    </head>
-
-    <body>
         <div>
 
             <div id="errorMessage">
@@ -26,14 +14,15 @@ if(isset($_SESSION['user'])){
                   echo $err;
                 ?>
             </div>
+            
+            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
             <div>
-                User Name: <input class="username" type="text" name="username" id="username"/>
+                User Name: <input class="login-input" type="text" name="uname" id="username"/>
 
-                Password: <input class="username" type="text" name="username" id="username"/>
+                Password: <input class="login-input" name="pword" id="password" type="password"/>
             </div>
             <div>
                 <button id="login">Login</button>
             </div>
+            </form>
         </div>
-    </body>
-</html>

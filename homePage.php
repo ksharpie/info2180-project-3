@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+<?php
+?>
 <html>
     <head>
         <title>Cheapo Mail Service HomePage</title>
