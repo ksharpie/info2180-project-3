@@ -15,7 +15,7 @@ if(isset($_SESSION['user'])){
                 ?>
             </div>
             
-            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+            <form method="post" action="login.php">
             <div>
                 User Name: <input class="login-input" type="text" name="uname" id="username"/>
 

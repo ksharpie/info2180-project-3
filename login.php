@@ -18,6 +18,7 @@ $p = $_POST['pword'];
 
 if (isset($_POST['submit']))
 {
+   header("location: homePage.php");//redirect to home page
   if (empty($_POST['uname']) || empty($_POST['pword']))//check if username or password is empty
   {
       $err = "Please enter a username or password";
@@ -33,9 +34,6 @@ if (isset($_POST['submit']))
       // Create connection
       $db = new mysqli($servername, $username, $password, $database, $dbport);
 
-     // $db = mysql_select_db("cheapoMail", $connection);//connect to database
-  
-
       $query = mysqli_query($db,"select * from users where password='$password' AND username='$username'", $connection);
       if($query != FALSE)
       {
@@ -43,9 +41,11 @@ if (isset($_POST['submit']))
         
         if ($rows == 1) {
             $_SESSION['user']=$username;
-            //header("location: homePage.php");//redirect to home page
+            //echo "success";
+            header("location: homePage.php");//redirect to home page
         } else {
             $error = "Username or Password is invalid";
+            echo $error;
         }
       }
       else {

@@ -11,16 +11,26 @@ $(document).ready(function(){
             datatype: "html",
             data: {username: $("#username").val(), password: $("#password").val()},
             success: function(result){
-                console.log(result);
-                if(result == "errorMessage"){
-                    $("#errorMessage").html("Incorrect Login Credentials")
-                }
-                else{
+                console.log(result.val());
+                if(result == "success")
+                {
                      $('#container').load('homePage.php');
-                     //$(window).location.href="homePage.php";
-                    $(window).load(function(){
-                        $("#mailbox").html(result);
-                    });   
+                     $(window).load(function(){
+                            $("#mailbox").html(result);
+                        }); 
+                }
+                else
+                {
+                    if(result == "errorMessage"){
+                        $("#errorMessage").html("Incorrect Login Credentials")
+                    }
+                    else{
+                         $('#container').load('homePage.php');
+                         //$(window).location.href="homePage.php";
+                        $(window).load(function(){
+                            $("#mailbox").html(result);
+                        });   
+                    }
                 }
             }
         });
