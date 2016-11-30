@@ -15,7 +15,29 @@ $(document).ready(function(){
                     }
                 }
             }
-            loginPage();
+            
+            $.ajax({
+            url: "login.html",
+            success: function(page){
+
+                $("#container").html(page);//load page into container element
+
+                $("#loginForm").submit(function(e) {
+                    
+                    e.preventDefault(); //prevent form default POST action
+                     
+                    $.ajax({
+                        type: "POST",
+                        url: "login.php",
+                        data: $(this).serialize(), //serialize data as json
+                        success: function(data){
+                            login(JSON.parse(data));
+                            }
+                        });
+                   
+                    });
+                }
+            });
         }
     });
     
@@ -35,23 +57,35 @@ $(document).ready(function(){
             }
             else
             {
-                if (result.result == "success")
+                if(result.result == "dbErr")
                 {
-                    
-                    if(result.type == "user"){
-                        user(result);
-                    }
-                    else
+                    $("#error").html("Database Error.");
+                }
+                else
+                {
+                    if (result.result == "success")
                     {
-                        if (result.type == "admin")
-                        {
-                             $.ajax({
-                            url: "adminPage.html",
-                            success: function(page){
-                                adminPage(result, page);
+                        
+                        if(result.type == "user"){
+                            $.ajax({
+                                url: "user.html",
+                                success: function(page){
+                                    userPage(result, page);
                                 }
                             });
-                    
+                        }
+                        else
+                        {
+                            if (result.type == "admin")
+                            {
+                                 $.ajax({
+                                url: "adminPage.html",
+                                success: function(page){
+                                    adminPage(result, page);
+                                    }
+                                });
+                        
+                            }
                         }
                     }
                 }
@@ -59,32 +93,31 @@ $(document).ready(function(){
         }
     }
     
-    function loginPage(){
+    function userPage(user,page){
+        $("body").html(page);
+        $("#name").html(user.fname + " " + user.lname);
+
+        // logout
+        $("#logout").click(function(){
+            logOut();
+        });
+
+        var users;
+        // get users list
         $.ajax({
-            url: "login.html",
-            success: function(page){
-
-                $("#container").html(page);//load page into container element
-
-                $("#loginForm").submit(function(e) {
-                    
-                    e.preventDefault(); //prevent form default POST action
-                     
-                    $.ajax({
-                        type: "POST",
-                        url: "login.php",
-                        data: $(this).serialize(), //serialize data as json
-                        success: function(data){
-                            login(JSON.parse(data));
-                        }
-                    });
-                   
-                });
+            url: "getusers.php",
+            success: function(data){
+                users = JSON.parse(data);
+                // get messages
+                getMessages(user, users)
             }
         });
+
+        $("#compose").click(function(){
+            newMessage(user, users);
+        });
+
     }
-    
-    
     
     function adminPage(admin, page){
         $("#container").html(page);
@@ -116,99 +149,41 @@ $(document).ready(function(){
         });
         
         $("#logout").click(function(){
-            logOut();
+            logOut();//log out
         });
     }
     
-    
-    
-    
-    $("#login").click(function(){
-        console.log($("#username").val());
-        console.log( $("#password").val());
-        $.ajax({
-            type: "POST",
-            url: "login.php",
-            datatype: "html",
-            data: {username: $("#username").val(), password: $("#password").val()},
-            success: function(result){
-                console.log(result.val());
-                if(result == "success")
-                {
-                     //$('#container').load('homePage.php');
-                     //$(window).load(function(){
-                            //$("#mailbox").html(result);
-                       // }); 
-                }
-                else
-                {
-                    if(result == "errorMessage"){
-                        $("#errorMessage").html("Incorrect Login Credentials")
-                    }
-                    else{
-                         $('#container').load('homePage.php');
-                         //$(window).location.href="homePage.php";
-                        $(window).load(function(){
-                            $("#mailbox").html(result);
-                        });   
-                    }
-                }
+    function logOut(){
+        if(confirm("Are you sure you want to log out?")){
+            $.ajax({
+                url: "logout.php",
+                success: function(data){
+                     $.ajax({
+                        url: "login.html",
+                        success: function(page){
+            
+                        $("#container").html(page);//load page into container element
+        
+                        $("#loginForm").submit(function(e) {
+                            
+                            e.preventDefault(); //prevent form default POST action
+                             
+                            $.ajax({
+                                type: "POST",
+                                url: "login.php",
+                                data: $(this).serialize(), //serialize data as json
+                                success: function(data){
+                                    login(JSON.parse(data));
+                                }
+                            });
+                   
+                });
             }
         });
-    });
-    
-    $("#saveUser").click(function(){
-        $.ajax({
-            type: "POST",
-            url: "saveUser.php",
-            datatype: "html",
-            data: {username: $("#username").val(), password: $("#password").val()},
-            success: function(result){
-                if(result == "errorMessage"){
-                    $("#errorMessage").html("User Could Not Be Created")
                 }
-                else{
-                    window.location.href = "homePage.html";
-                }
-            }
-        });
-    });
-    
-    $("#sendMessage").click(function(){
-        $.ajax({
-            type: "POST",
-            url: "schema.php",
-            datatype: "html",
-            data: {recipents: $("#recipient").val(), date: $("#date").val(), subject: $("#subject").val(), body: $("#body").val()},
-            success: function(result){
-                if(result == "errorMessage"){
-                    $("#errorMessage").html("Message Could Not Be Sent")
-                }
-                else{
-                    window.location.href = "homePage.html";
-                }
-            }
-        });
-    });
-    
-    $("#readMessage").click(function(){
-        $.ajax({
-            type: "GET",
-            url: "schema.php",
-            datatype: "html",
-            data: {id: $(this).attr("name")},
-            success: function(result){
-                if(result == "errorMessage"){
-                    $("#errorMessage").html("Message cannot be read")
-                }
-                else{
-                    window.location.href = "readMessage.html";
-                    $(window).load(function(){
-                        $("#message").html(result);
-                    });   
-                }
-            }
-        });
-    });
+            });
+        }
+    }
+
     
 });
