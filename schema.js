@@ -93,6 +93,38 @@ $(document).ready(function(){
         }
     }
     
+    function logOut(){
+        if(confirm("Are you sure you want to log out?")){
+            $.ajax({
+                url: "logout.php",
+                success: function(data){
+                     $.ajax({
+                        url: "login.html",
+                        success: function(page){
+            
+                        $("#container").html(page);//load page into container element
+        
+                        $("#loginForm").submit(function(e) {
+                            
+                            e.preventDefault(); //prevent form default POST action
+                             
+                            $.ajax({
+                                type: "POST",
+                                url: "login.php",
+                                data: $(this).serialize(), //serialize data as json
+                                success: function(data){
+                                    login(JSON.parse(data));
+                                }
+                            });
+                   
+                });
+            }
+        });
+                }
+            });
+        }
+    }
+    
     function userPage(user,page){
         $("body").html(page);
         $("#name").html(user.fname + " " + user.lname);
@@ -105,7 +137,7 @@ $(document).ready(function(){
         var users;
         // get users list
         $.ajax({
-            url: "getusers.php",
+            url: "users.php",
             success: function(data){
                 users = JSON.parse(data);
                 // get messages
@@ -153,37 +185,55 @@ $(document).ready(function(){
         });
     }
     
-    function logOut(){
-        if(confirm("Are you sure you want to log out?")){
-            $.ajax({
-                url: "logout.php",
-                success: function(data){
-                     $.ajax({
-                        url: "login.html",
-                        success: function(page){
-            
-                        $("#container").html(page);//load page into container element
-        
-                        $("#loginForm").submit(function(e) {
-                            
-                            e.preventDefault(); //prevent form default POST action
-                             
+    function getMessages(user, users)
+    {
+        $.ajax({
+            type: "POST",
+            url: "getmessages.php",
+            data: { id: user.id },
+            success: function(data){
+                $("#msglst").html("");
+                var msgs = JSON.parse(data);
+                if(msgs.length==0){
+                    $("#msgHeader").html("No messages.");
+                } else {
+                    for(i in msgs){
+                        var msg = msgs[i];
+                        var li = $("<li id='"+i+"' class='message'>");
+                        var sender = users[msg.user_id];
+                        var s_name = sender.firstname + " " + sender.lastname;
+                        $(li).append(s_name+" - "+msg.subject);
+                        // add styles for read messages
+                        if( msg.hasOwnProperty("read_at") )
+                            $(li).addClass("read");
+                        $("#msglst").append(li);
+                    }
+                }
+
+                $(".message").each(function(){
+                    $(this).click(function(){
+                        var msg = msgs[$(this).attr("id")];
+                        if(!msg.hasOwnProperty("read_at")){
                             $.ajax({
-                                type: "POST",
-                                url: "login.php",
-                                data: $(this).serialize(), //serialize data as json
-                                success: function(data){
-                                    login(JSON.parse(data));
-                                }
-                            });
-                   
+                                    type: "POST",
+                                    url: "markRead.php",
+                                    data: {
+                                            message_id: msg.id,
+                                            reader_id: user.id
+                                    },
+                                    success: function(data){
+                                        }
+                                    });
+                        }
+                        getMessages(user, users);
+                        showMessage(msg, users);
+                    });
                 });
             }
         });
-                }
-            });
-        }
     }
+    
+    
 
     
 });
