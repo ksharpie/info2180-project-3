@@ -63,12 +63,13 @@ $(document).ready(function(){
                 }
                 else
                 {
+                    //$("#error").html(result.result);
                     if (result.result == "success")
                     {
                         
                         if(result.type == "user"){
                             $.ajax({
-                                url: "user.html",
+                                url: "profile.html",
                                 success: function(page){
                                     userPage(result, page);
                                 }
@@ -90,6 +91,8 @@ $(document).ready(function(){
                     }
                 }
             }
+            
+            
         }
     }
     
@@ -157,14 +160,12 @@ $(document).ready(function(){
 
         $("#newUserForm").submit(function(e){
             
-            //prevent default POST action
-            e.preventDefault();
-            
             $.ajax({
                 type: "POST",
                 url: "register.php",
                 data: $(this).serialize(),
                 success: function(data){
+                    //alert(data);
                     console.log(data);
                     if(data == "success"){
                         $("#error").html("Registration completed successfully");
@@ -177,6 +178,9 @@ $(document).ready(function(){
                     }
                 }
             });
+            
+            //prevent default POST action
+            e.preventDefault();
             
         });
         
@@ -195,11 +199,11 @@ $(document).ready(function(){
                 $("#msglst").html("");
                 var msgs = JSON.parse(data);
                 if(msgs.length==0){
-                    $("#msgHeader").html("No messages.");
+                    $("#msgHeader").html("Message Box empty.");
                 } else {
                     for(i in msgs){
                         var msg = msgs[i];
-                        var li = $("<li id='"+i+"' class='message'>");
+                        var li = $("<li id='"+i+"' class='msg'>");
                         var sender = users[msg.user_id];
                         var s_name = sender.firstname + " " + sender.lastname;
                         $(li).append(s_name+" - "+msg.subject);
@@ -233,6 +237,64 @@ $(document).ready(function(){
         });
     }
     
+    function newMessage(user, users)
+    {
+        $.ajax({
+            url: "newmsg.html",
+            success: function(page){
+                $("body").html(page);
+                for(var i in users){
+                    if( i.id != user.id && i.username != "admin" ){
+                        $("#recipients").append("<option value=\""+i.id+"\">"+i.username+", "+i.firstname+" "+i.lastname+"</option>");
+                    }
+                }
+
+                $("#cancel").click(function(){
+                    $.ajax({
+                        url: "profile.html",
+                        success: function(page){
+                            userPage(user, page);
+                        }
+                    });
+                });
+
+                $("#sender").val(user.id);
+
+                $("#newMessageForm").submit(function(e){
+                    sendMessage(this, user);
+                    e.preventDefault();
+                });
+            }
+        });
+    }
+    
+    function showMessage(msg, users){
+        $("#msg").html("<h2>"+msg.subject+"</h2>");
+        var sender = users[msg.user_id].firstname + " " + users[msg.user_id].lastname;
+        $("#msg").append("<h4>"+sender+" at "+msg.date_sent+"</h4>");
+        $("#msg").append("<p>"+msg.body+"</p>");
+    }
+    
+    function sendMessage(form, user){
+        $.ajax({
+            type: "POST",
+            url: "newmessage.php",
+            data: $(form).serialize(),
+            success: function(data){
+                if(data == "success"){
+                    $.ajax({
+                        url: "profile.html",
+                        success: function(page){
+                            userPage(user, page);
+                        }
+                    });
+                    alert("Message sent!");
+                } else {
+                    alert("Message not sent.");
+                }
+            }
+        });
+    }
     
 
     

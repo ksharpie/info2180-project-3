@@ -29,12 +29,14 @@ USE cheapoMail;
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` int(11) NOT NULL auto_increment,
-  `first_name` char(35) NOT NULL default '',
-  `last_name` char(35) NOT NULL default '',
-  `username` char(35) NOT NULL default '',
-  `password` char(20) NOT NULL default '',
+  `first_name` varchar(35) NOT NULL default '',
+  `last_name` varchar(35) NOT NULL default '',
+  `username` varchar(35) NOT NULL default '',
+  `password` varchar(64) NOT NULL,
+  UNIQUE(`username`),
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4080 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
 
 --
 -- Table structure for table 'messages'
@@ -46,10 +48,10 @@ CREATE TABLE `message` (
   `recipent_ids` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `subject` varchar(128) NOT NULL default '',
-  `body` char(100) NOT NULL default '',
+  `body` varchar(255) NOT NULL default '',
   `date_sent` datetime NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4080 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 --
 -- Table structure for table 'message_read'
@@ -62,4 +64,7 @@ CREATE TABLE `message_read` (
 	`reader_id` int(11) NOT NULL,
 	`date` datetime NOT NULL,
 	PRIMARY KEY (`id`)
-)ENGINE=MyISAM AUTO_INCREMENT=4080 DEFAULT CHARSET=utf8;
+)ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+INSERT INTO user (first_name,last_name,username,password) values ('admin','admin','admin','49f41477fa1bfc3b4792d5233b6a659f4bc1772692e9d5fe7db0624a300652eb');
+

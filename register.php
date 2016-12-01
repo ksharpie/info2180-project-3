@@ -25,13 +25,13 @@ else
     $passCompare = $_POST["pass2"];
     
     
-    if(strcmp($pass,$passCompare) == 0)
+    if(strcmp($pass,$passCompare) != 0)//if passwords dont match
     {
-        echo "invalidPass";
+        echo "invalidPass".$pass.$passCompare;
         exit;
     }
     
-    $query = "SELECT * FROM user WHERE username='$username'";
+    $query = "SELECT * FROM `user` WHERE username='$username' ";
     $result = $db->query($query);
     
     if($result->num_rows >= 1)
@@ -43,21 +43,17 @@ else
     $query = "SHOW TABLE STATUS WHERE name='user'";
     $result = $db->query($query);
     $newUID = $result->fetch_assoc()["Auto_increment"];
-    $passHash = hash_hmac("sha256",$pass,$newUID);
+    $passHash = hash_hmac("sha256",$pass,$newUID);//check
     
-    $query = "INSERT INTO user (firstname, lastname, username, password) VALUES ('$fname', '$lname', '$username', '$h_pass')";
+    $query = "INSERT INTO user (first_name, last_name, username, password) VALUES ('$fname', '$lname', '$username', '$passHash')";
     $success = $db->query($query);
     
-    if($success)
-    {
-        echo "success";
-    }
-    else
+    if(!$success)
     {
         echo "failed";
         exit;
     }
-    
+    echo "success";
     
 }
 

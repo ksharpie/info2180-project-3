@@ -30,9 +30,10 @@ else
     if($results->num_rows == 0)
     {
         print_r(json_encode(array("result"=>"notFound")));
+        exit;
     }
     
-    $assoc_user = $results->fetch_assoc;
+    $assoc_user = $results->fetch_assoc();
     $uID = $assoc_user['id'];
     $pass_hash = hash_hmac("sha256",$pass,$uID);
     $storedPass = $assoc_user['password'];
